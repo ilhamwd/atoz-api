@@ -96,7 +96,7 @@ class UserController extends Controller
             
             if (time() - $timestamp > 5 * 60) {
                 UserOrder::where('order_no', '=', $order->order_no)->update([
-                    'status' => 3
+                    'status' => 2
                 ]);
                 
                 $user->unpaid_orders --;
