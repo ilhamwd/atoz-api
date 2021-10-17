@@ -88,7 +88,20 @@ class UserController extends Controller
             ['status', '=', 0]
         ])->get();
 
+        
         $user->unpaid_orders = sizeof($unpaid_orders);
+        
+        foreach ($unpaid_orders as $order) {
+            $timestamp = strtotime($order->created_at);
+            
+            if (time() - $timestamp > 5 * 60) {
+                UserOrder::where('order_no', '=', $order->order_no)->update([
+                    'status' => 3
+                ]);
+                
+                $user->unpaid_orders --;
+            }
+        }
 
         return response([
             'status' => 200,
@@ -99,7 +112,7 @@ class UserController extends Controller
 
     public function getOrders()
     {
-        $orders = UserOrder::where('user_uuid', '=', USER_UUID)->get()->makeHidden(['user_uuid']);
+        $orders = UserOrder::where('user_uuid', '=', USER_UUID)->orderBy('created_at', 'DESC')->get()->makeHidden(['user_uuid']);
 
         return response([
             'status' => 200,
